@@ -1,0 +1,71 @@
+server:
+  port: 0
+  error:
+    whitelabel:
+      enabled: false
+
+base:
+  url: ${BASE_URL:http://192.168.0.103:8282}
+
+spring:
+  jpa:
+    hibernate.ddl-auto: update
+    properties:
+      hibernate.temp.use_jdbc_metadata_defaults: true
+  datasource:
+    url: ${DB_SERVER:jdbc:postgresql://localhost:5432/camel_employee_db?useTimezone=true&serverTimezone=Africa/Lagos}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:root}
+    driver-class-name: ${DB_DRIVER:org.postgresql.Driver}
+    hikari:
+      connection-timeout: 60000
+      maximum-pool-size: 5
+  application:
+    name: employee-service
+
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cameltraining.net
+          jwk-set-uri: ${base.url}/api/auth/jwt/.well-known/jwks.json
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+
+app:
+  oauth:
+    uri: https://cameltraining.net
+
+
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    hostname: employee-service
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.int}
+
+
+camel:
+  component:
+    kafka:
+      brokers: localhost:9092
